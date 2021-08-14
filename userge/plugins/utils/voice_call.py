@@ -10,24 +10,23 @@
 #
 # Author (C) - @Krishna_Singhal (https://github.com/Krishna-Singhal)
 
+import asyncio
+import glob
 import os
 import re
-import glob
-import ffmpeg
 import shutil
-import asyncio
-import youtube_dl as ytdl
-
-from typing import List, Tuple
 from traceback import format_exc
-from pytgcalls import GroupCall
-from youtubesearchpython import VideosSearch
+from typing import List, Tuple
 
+import ffmpeg
+import youtube_dl as ytdl
 from pyrogram.raw import functions
 from pyrogram.types import (
     InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message as RawMessage
 )
 from pyrogram.types.messages_and_media.message import Str
+from pytgcalls import GroupCall
+from youtubesearchpython import VideosSearch
 
 from userge import userge, Message, pool, filters, get_collection, Config
 from userge.utils import time_formatter
@@ -348,6 +347,8 @@ async def force_play_music(msg: Message):
                 return
     elif msg.reply_to_message and msg.reply_to_message.audio:
         replied = msg.reply_to_message
+        if not hasattr(replied, '_client'):
+            replied._client = msg.client  # pylint: disable=protected-access
         QUEUE.insert(0, replied)
     else:
         return await reply_text(msg, "Input not found")
